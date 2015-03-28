@@ -2,8 +2,9 @@
   "name": "QIKlaxonBot",
   "version": "0.1.0",
   "description": "QIKlaxonBot daemon",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
+    "start": "envigorate",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -19,6 +20,13 @@
     "url": "https://github.com/stuartpb/QIKlaxonBot/issues"
   },
   "dependencies": {
-    "rereddit": "~0.1.0"
+    "connect-redis": "^2.2.0",
+    "endex": "^0.1.1",
+    "envigor": "^0.9.0",
+    "express": "^4.12.3",
+    "express-session": "^1.10.4",
+    "jade": "^1.9.2",
+    "rethinkdb": "^1.16.2",
+    "snoocore": "^2.7.3"
   }
 }
