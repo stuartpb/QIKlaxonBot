@@ -78,4 +78,6 @@ module.exports = function appctor(cfg) {
       authRedditUser(req, res);
     }
   });
+
+  return app;
 };
