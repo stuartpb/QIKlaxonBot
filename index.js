@@ -47,7 +47,11 @@ module.exports = function appctor(cfg) {
     botAuthReddit.auth(req.query.code).then(function (refreshToken){
       r.table('users').get(botName).update({refreshToken: refreshToken})
         .run(conn).then(function() {
-          res.send('SPIKE SENT');
+          // "log out" and redirect to the index
+          // so we can log in as ourselves
+          delete res.session.username;
+          delete res.session.bot;
+          res.redirect('/');
         });
     });
   }
