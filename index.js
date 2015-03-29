@@ -66,8 +66,8 @@ module.exports = function appctor(cfg) {
     else return next();
   });
   app.get('/', function (req, res) {
-    if (req.session.user) {
-      res.render('dashboard.jade',{user: req.session.user});
+    if (req.session.username) {
+      res.render('dashboard.jade',{user: req.session.username});
     } else {
       res.render('guest.jade');
     }
