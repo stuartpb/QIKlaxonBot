@@ -57,7 +57,7 @@ module.exports = function appctor(cfg) {
       store: new RedisStore({
         host: cfg.redis.hostname,
         port: cfg.redis.port}),
-      secret: cfg.reddit.clientSecret
+      secret: cfg.reddit.secret
   }));
   app.use(function (req, res, next) {
     if (!req.session) {
