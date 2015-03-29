@@ -66,7 +66,11 @@ module.exports = function appctor(cfg) {
     else return next();
   });
   app.get('/', function (req, res) {
-    res.render('index.jade');
+    if (req.session.user) {
+      res.render('dashboard.jade',{user: req.session.user});
+    } else {
+      res.render('guest.jade');
+    }
   });
   app.get('/elves/login', function (req, res) {
     res.redirect(authReddit.getExplicitAuthUrl());
