@@ -30,8 +30,11 @@ module.exports = function appctor(cfg) {
     userAuthReddit.auth(req.query.code).then(function (refreshToken){
       return userAuthReddit('/api/v1/me').get();
     }).then(function(data){
-      return r.table('users').insert({name: data.name}, {conflict: 'update'})
-        .run(conn).then(function(){
+      return r.table('users').insert(
+        {name: data.name, lastLogin: r.now()},
+        {conflict: 'update'}).run(conn).then(function() {
+          return userAuthReddit.deauth();
+        }).then(function() {
           if (data.name == botName) {
             req.session.bot = crypto.randomBytes(64).toString('hex');
             res.redirect(botAuthReddit.getExplicitAuthUrl(req.session.bot));
@@ -44,15 +47,17 @@ module.exports = function appctor(cfg) {
   }
 
   function authBot(req, res) {
-    botAuthReddit.auth(req.query.code).then(function (refreshToken){
-      r.table('users').get(botName).update({refreshToken: refreshToken})
-        .run(conn).then(function() {
-          // "log out" and redirect to the index
-          // so we can log in as ourselves
-          delete res.session.username;
-          delete res.session.bot;
-          res.redirect('/');
-        });
+    botAuthReddit.auth(req.query.code).then(function (refreshToken) {
+      botAuthReddit.deauth().then(function () {
+        return r.table('users').get(botName)
+          .update({refreshToken: refreshToken}).run(conn);
+      }).then(function () {
+        // "log out" and redirect to the index
+        // so we can log in as ourselves
+        delete res.session.username;
+        delete res.session.bot;
+        res.redirect('/');
+      });
     });
   }
 
