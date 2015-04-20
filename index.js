@@ -14,7 +14,7 @@ module.exports = function appctor(cfg) {
   var botAuthReddit = redditBot(cfg.reddit);
   var conn;
 
-  r.connect(cfg.rethinkdb).then(function(connection){
+  r.connect(cfg.rethinkdb).then(function (connection) {
     conn = connection;
     return endex.db('qiklaxonbot')
       .table('users', {primaryKey: 'name'})
@@ -27,14 +27,14 @@ module.exports = function appctor(cfg) {
 
   function authRedditUser(req, res) {
     var userAuthReddit = redditAuth(cfg.reddit);
-    userAuthReddit.auth(req.query.code).then(function (refreshToken){
+    userAuthReddit.auth(req.query.code).then(function (refreshToken) {
       return userAuthReddit('/api/v1/me').get();
-    }).then(function(data){
+    }).then(function (data) {
       return userAuthReddit.deauth()
       .then(r.table('users').insert(
         {name: data.name, lastLogin: r.now()},
         {conflict: 'update'}).run(conn))
-      .then(function() {
+      .then(function () {
         if (data.name == botName) {
           req.session.bot = crypto.randomBytes(64).toString('hex');
           res.redirect(botAuthReddit.getExplicitAuthUrl(req.session.bot));
