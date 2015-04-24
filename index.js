@@ -2,7 +2,7 @@ var express = require('express');
 var session = require('express-session');
 var RedisStore = require('connect-redis')(session);
 var r = require('rethinkdb');
-var endexDb = require('./lib/reddit/bot.js');
+var endexDb = require('./lib/endexDb.js');
 
 module.exports = function appctor(cfg) {
   var redditCfg = cfg.reddit;
