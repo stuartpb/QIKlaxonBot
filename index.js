@@ -10,8 +10,11 @@ var endex = require('endex');
 var botName = 'QIKlaxonBot';
 
 module.exports = function appctor(cfg) {
-  var authReddit = redditAuth(cfg.reddit);
-  var botAuthReddit = redditBot(cfg.reddit);
+  var redditCfg = cfg.reddit;
+  redditCfg.domain = cfg.env.CANONICAL_HOST;
+
+  var authReddit = redditAuth(redditCfg);
+  var botAuthReddit = redditBot(redditCfg);
   var conn;
 
   r.connect(cfg.rethinkdb).then(function (connection) {
