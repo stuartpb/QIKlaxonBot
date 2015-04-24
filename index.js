@@ -62,6 +62,7 @@ module.exports = function appctor(cfg) {
   }
 
   var app = express();
+  app.use(express.static(__dirname + '/static'));
   app.use(session({
       store: new RedisStore({
         host: cfg.redis.hostname,
