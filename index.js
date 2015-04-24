@@ -1,20 +1,14 @@
 var express = require('express');
-var crypto = require('crypto');
 var session = require('express-session');
 var RedisStore = require('connect-redis')(session);
-var redditAuth = require('./lib/reddit/auth.js');
-var redditBot = require('./lib/reddit/bot.js');
 var r = require('rethinkdb');
 var endexDb = require('./lib/reddit/bot.js');
-
-var botName = 'QIKlaxonBot';
 
 module.exports = function appctor(cfg) {
   var redditCfg = cfg.reddit;
   redditCfg.domain = cfg.env.CANONICAL_HOST;
+  redditCfg.botName = 'QIKlaxonBot';
 
-  var authReddit = redditAuth(redditCfg);
-  var botAuthReddit = redditBot(redditCfg);
   var conn;
 
   r.connect(cfg.rethinkdb).then(function (connection) {
@@ -22,41 +16,16 @@ module.exports = function appctor(cfg) {
     return endexDb(conn);
   });
 
-  function authRedditUser(req, res) {
-    var userAuthReddit = redditAuth(cfg.reddit);
-    userAuthReddit.auth(req.query.code).then(function (refreshToken) {
-      return userAuthReddit('/api/v1/me').get();
-    }).then(function (data) {
-      return userAuthReddit.deauth()
-      .then(r.table('users').insert(
-        {name: data.name, lastLogin: r.now()},
-        {conflict: 'update'}).run(conn))
-      .then(function () {
-        if (data.name == botName) {
-          req.session.bot = crypto.randomBytes(64).toString('hex');
-          res.redirect(botAuthReddit.getExplicitAuthUrl(req.session.bot));
-        } else {
-          req.session.username = data.name;
-          res.redirect('/');
-        }
-      });
-    });
-  }
+  var redditAuthUrl = require(
+    './lib/reddit/contexts/auth.js')(redditCfg).getExplicitAuthUrl();
 
-  function authBot(req, res) {
-    botAuthReddit.auth(req.query.code).then(function (refreshToken) {
-      return botAuthReddit.deauth()
-      .then(r.table('users').get(botName)
-        .update({refreshToken: refreshToken}).run(conn))
-      .then(function () {
-        // "log out" and redirect to the index
-        // so we can log in as ourselves
-        delete res.session.username;
-        delete res.session.bot;
-        res.redirect('/');
-      });
-    });
-  }
+  // These might be better described as "conditionally-determined route
+  // handlers" than "middleware", but I'm saying that anything that
+  // uses the (req, res) signature is "middleware", for the purposes of
+  // naming.
+  var authBot = require('./lib/middleware/authBot.js')(redditCfg, conn);
+  var authRedditUser = require(
+    './lib/middleware/authRedditUser.js')(redditCfg, conn);
 
   function requireLogin(req, res, next) {
     if (req.session.username) return next();
@@ -86,7 +55,7 @@ module.exports = function appctor(cfg) {
     }
   });
   app.get('/elves/login', function (req, res) {
-    res.redirect(authReddit.getExplicitAuthUrl());
+    res.redirect(redditAuthUrl);
   });
   app.get('/auth/reddit', function (req, res) {
     if (req.query.state && req.query.state == req.session.bot) {
