@@ -1,0 +1,9 @@
+extends layout
+
+block content
+  form(method="POST")
+    label(for="post") URL of post to watch
+    input(name="post",placeholder="https://reddit.com/r/...")
+    label(for="phrase") Phrase to watch for
+    input(name="phrase")
+    button(type="submit") Add forfeit
