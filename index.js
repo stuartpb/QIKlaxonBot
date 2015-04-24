@@ -5,7 +5,7 @@ var RedisStore = require('connect-redis')(session);
 var redditAuth = require('./lib/reddit/auth.js');
 var redditBot = require('./lib/reddit/bot.js');
 var r = require('rethinkdb');
-var endex = require('endex');
+var endexDb = require('./lib/reddit/bot.js');
 
 var botName = 'QIKlaxonBot';
 
@@ -19,13 +19,7 @@ module.exports = function appctor(cfg) {
 
   r.connect(cfg.rethinkdb).then(function (connection) {
     conn = connection;
-    return endex.db('qiklaxonbot')
-      .table('users', {primaryKey: 'name'})
-      .table('klaxons')
-        .index('comment')
-        .index('elf')
-      .table('comments')
-      .run(conn);
+    return endexDb(conn);
   });
 
   function authRedditUser(req, res) {
@@ -64,6 +58,11 @@ module.exports = function appctor(cfg) {
     });
   }
 
+  function requireLogin(req, res, next) {
+    if (req.session.username) return next();
+    else return res.redirect('/');
+  }
+
   var app = express();
   app.use(express.static(__dirname + '/static'));
   app.use(session({
@@ -80,6 +79,7 @@ module.exports = function appctor(cfg) {
   });
   app.get('/', function (req, res) {
     if (req.session.username) {
+      // TODO: get user's forfeits
       res.render('dashboard.jade',{user: req.session.username});
     } else {
       res.render('guest.jade');
@@ -94,6 +94,15 @@ module.exports = function appctor(cfg) {
     } else {
       authRedditUser(req, res);
     }
+  });
+  app.get('/forfeits/new', requireLogin, function (req, res) {
+    res.render('new-forfeit.jade',{user: req.session.username});
+  });
+  // TODO: save posted forfeit until user logs in if user is not logged in
+  app.post('/forfeits/new', requireLogin, function (req, res) {
+
+    // TODO: save forfeit to database
+    res.redirect('/');
   });
 
   return app;
