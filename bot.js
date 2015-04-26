@@ -4,6 +4,7 @@ var queries = require('./lib/bot/queries.js');
 var getSubjectReplies = require('./lib/reddit/getSubjectReplies.js');
 var mapForfeitRegExps = require('./lib/klaxons/mapForfeitRegExps.js');
 var postKlaxonReply = require('./lib/klaxons/postKlaxonReply.js');
+var endexDb = require('./lib/endexDb.js');
 
 var botName = 'QIKlaxonBot';
 
@@ -14,7 +15,8 @@ module.exports = function botctor(cfg) {
   function kickoff() {
     r.connect(cfg.rethinkdb).then(function (connection) {
       conn = connection;
-      return r.table('users').get(botName).changes().run(conn);
+      return endexDb(conn)
+        .then(r.table('users').get(botName).changes().run(conn));
     }).then(function(cursor){
       function checkForRefreshToken(changes) {
         var user = changes.new_val;
