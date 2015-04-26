@@ -71,7 +71,7 @@ module.exports = function botctor(cfg) {
                 forfeits: [matchedForfeits],
                 created: reqlRedditDate(comment,'created')}).run(conn);
             // TODO: continue *after* async call rather than spawning
-            //       a potential whole bunch of comment calls
+            //       a potential whole bunch of comment calls at once
             });
           }
         }
