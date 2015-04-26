@@ -6,7 +6,7 @@ var r = require('rethinkdb');
 var endexDb = require('./lib/endexDb.js');
 
 var parseCommentsUrl = require('./lib/reddit/parseCommentsUrl.js');
-var getReplies = require('./lib/reddit/getReplies.js');
+var getSubjectReplies = require('./lib/reddit/getSubjectReplies.js');
 var forfeitAlreadyPresent = require('./lib/forfeitAlreadyPresent.js');
 var reqlRedditDate = require('./lib/reqlRedditDate.js');
 
@@ -91,7 +91,7 @@ module.exports = function appctor(cfg) {
     if (!req.body.phrase) return res.redirect('/forfeits/new?err=nophrase');
     var forfeit = {phrase: req.body.phrase};
 
-    return getReplies(reddit, subject).then(function(result){
+    return getSubjectReplies(reddit, subject).then(function(result){
       if(forfeitAlreadyPresent(result,forfeit))
         return res.redirect('/forfeits/new?err=toolate');
       else {

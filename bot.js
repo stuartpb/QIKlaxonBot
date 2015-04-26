@@ -1,9 +1,9 @@
 var botReddit = require('./lib/reddit/contexts/bot.js');
 var r = require('rethinkdb');
 var queries = require('./lib/bot/queries.js');
-var getReplies = require('./lib/bot/getReplies.js');
-var makeForfeitRegExps = require('./lib/bot/makeForfeitRegExps.js');
-var klaxonPostBody = require('./lib/bot/makeForfeitRegExps.js');
+var getSubjectReplies = require('./lib/reddit/getSubjectReplies.js');
+var mapForfeitRegExps = require('./lib/klaxons/mapForfeitRegExps.js');
+var klaxonPostBody = require('./lib/klaxons/klaxonPostBody.js');
 var reqlRedditDate = require('./lib/reqlRedditDate.js');
 
 var botName = 'QIKlaxonBot';
@@ -42,7 +42,7 @@ module.exports = function botctor(cfg) {
     var subject;
     function checkReplies(response) {
       var replies = response.replies;
-      var forfeitRegExps = makeForfeitRegExps(subject.forfeits);
+      var forfeitRegExps = mapForfeitRegExps(subject.forfeits);
       var matchedForfeits = [];
       for (var i=0; i < replies.length; i++){
         for (var j=0; j < forfeitRegExps.length; j++) {
@@ -82,7 +82,7 @@ module.exports = function botctor(cfg) {
       subject = mostUrgent;
       return r.table('subjects').get(subject.name)
         .update({last_checked: r.now()})
-        .run(conn).then(function(){return getReplies(reddit,subject)});
+        .run(conn).then(function(){return getSubjectReplies(reddit,subject)});
     }).then(function(result){
       if (result) return checkReplies(result);
       // if there are no comments to check, wait a second and try again
