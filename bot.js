@@ -55,6 +55,8 @@ module.exports = function botctor(cfg) {
           if (forfeitRegExps[j].test(replies[i].body) &&
             // and we haven't already posted a klaxon on it
             !~subject.forfeits[j].reply_klaxons.indexOf(replies[i].id)) {
+            // TODO: don't ding the same author for the same forfeit
+            //       in another reply
             // TODO: consolidate all forfeits into one post
             // TODO: get klaxons for replies per-subject, not per-forfeit
             // TODO: branch on existence of forfeit
