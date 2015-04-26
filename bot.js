@@ -54,7 +54,7 @@ module.exports = function botctor(cfg) {
           // if this post matches the forfeit
           if (forfeitRegExps[j].test(replies[i].body) &&
             // and we haven't already posted a klaxon on it
-            ~subject.forfeits[j].reply_klaxons.indexOf(replies[i].id)) {
+            !~subject.forfeits[j].reply_klaxons.indexOf(replies[i].id)) {
             // TODO: consolidate all forfeits into one post
             // TODO: get klaxons for replies per-subject, not per-forfeit
             // TODO: branch on existence of forfeit
