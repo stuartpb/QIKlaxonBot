@@ -48,7 +48,9 @@ module.exports = function appctor(cfg) {
     store: new RedisStore({
       host: cfg.redis.hostname,
       port: cfg.redis.port}),
-    secret: cfg.reddit.secret
+    secret: cfg.reddit.secret,
+    resave: true, //until tj/connect-redis#142 is implemented
+    saveUninitialized: false
   }));
   app.use(function (req, res, next) {
     if (!req.session) {
