@@ -29,15 +29,15 @@ module.exports = function botctor(cfg) {
           // the existence of a refresh token
           cursor.close();
           // auth to Reddit and start polling subjects
-          reddit.refresh(user.refreshToken).then(pollMostUrgentSubject);
+          return reddit.refresh(user.refreshToken).then(pollMostUrgentSubject);
 
         // if we don't have a refresh token yet
         } else {
           // check again next time we modify the bot's user record
-          cursor.next(checkForRefreshToken);
+          return cursor.next().then(checkForRefreshToken);
         }
       }
-      cursor.next(checkForRefreshToken);
+      return cursor.next().then(checkForRefreshToken);
     });
   }
 
