@@ -16,7 +16,9 @@ module.exports = function botctor(cfg) {
     r.connect(cfg.rethinkdb).then(function (connection) {
       conn = connection;
       return endexDb(conn)
-        .then(r.table('users').get(botName).changes().run(conn));
+        .then(function(){
+          return r.table('users').get(botName).changes().run(conn);
+        });
     }).then(function(cursor){
       function checkForRefreshToken(changes) {
         var user = changes.new_val;
@@ -61,14 +63,14 @@ module.exports = function botctor(cfg) {
             // TODO: if forfeit was submitted by the user who posted this,
             //       withdraw the forfeit
             matchedForfeits[0] = subject.forfeits[j].id;
-            var postPromise = postKlaxonReply(
+            var postPromiseCb = postKlaxonReply.bind(null,
               subject,replies[i],matchedForfeits,reddit,conn);
             if (pendingPromise) {
               // I'm not actually sure that I have to do the assignment here -
               // best not to risk it.
-              pendingPromise = pendingPromise.then(postPromise);
+              pendingPromise = pendingPromise.then(postPromiseCb);
             } else {
-              pendingPromise = postPromise;
+              pendingPromise = postPromiseCb();
             }
           }
         }
@@ -82,7 +84,7 @@ module.exports = function botctor(cfg) {
         subject = mostUrgent;
         return r.table('subjects').get(subject.name)
           .update({last_checked: r.now()}).run(conn)
-          .then(getSubjectReplies(reddit,subject))
+          .then(getSubjectReplies.bind(null,reddit,subject))
           .then(checkReplies);
 
       // if there are no comments to check, wait a second and try again
