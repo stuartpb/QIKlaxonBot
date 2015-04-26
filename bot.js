@@ -14,8 +14,8 @@ module.exports = function botctor(cfg) {
   function kickoff() {
     r.connect(cfg.rethinkdb).then(function (connection) {
       conn = connection;
-    }).then(r.table('users').get(botName).changes().run(conn))
-    .then(function(cursor){
+      return r.table('users').get(botName).changes().run(conn);
+    }).then(function(cursor){
       function checkForRefreshToken(changes) {
         var user = changes.new_val;
 
