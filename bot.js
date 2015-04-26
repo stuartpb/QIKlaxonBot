@@ -59,7 +59,7 @@ module.exports = function botctor(cfg) {
             //       withdraw the forfeit
             matchedForfeits[0] = subject.forfeits[j].id;
             reddit('/api/comment').post({
-              parent: subject.name, //or is it `thing_id`? DOCSSSSSS
+              parent: replies[i].name, //or is it `thing_id`? DOCSSSSSS
               text: klaxonPostBody(subject.forfeits[j],
                 // use self-forfeit template if elf who proposed the forfeit
                 // is the poster who triggered it
@@ -68,6 +68,7 @@ module.exports = function botctor(cfg) {
               return r.table('klaxons').insert({
                 id: comment.id,
                 subject: subject.name,
+                reply: replies[i].name,
                 forfeits: [matchedForfeits],
                 created: reqlRedditDate(comment,'created')}).run(conn);
             // TODO: continue *after* async call rather than spawning
