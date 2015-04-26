@@ -62,7 +62,7 @@ module.exports = function botctor(cfg) {
             // TODO: edit klaxon to append forfeits introduced by new edits
             // TODO: if forfeit was submitted by the user who posted this,
             //       withdraw the forfeit
-            matchedForfeits[0] = subject.forfeits[j].id;
+            matchedForfeits[0] = subject.forfeits[j];
             var postPromiseCb = postKlaxonReply.bind(null,
               subject,replies[i],matchedForfeits,reddit,conn);
             if (pendingPromise) {
