@@ -3,8 +3,7 @@ var r = require('rethinkdb');
 var queries = require('./lib/bot/queries.js');
 var getSubjectReplies = require('./lib/reddit/getSubjectReplies.js');
 var mapForfeitRegExps = require('./lib/klaxons/mapForfeitRegExps.js');
-var klaxonPostBody = require('./lib/klaxons/klaxonPostBody.js');
-var reqlRedditDate = require('./lib/reqlRedditDate.js');
+var postKlaxonReply = require('./lib/klaxons/postKlaxonReply.js');
 
 var botName = 'QIKlaxonBot';
 
@@ -43,8 +42,10 @@ module.exports = function botctor(cfg) {
     function checkReplies(response) {
       var replies = response.replies;
       var forfeitRegExps = mapForfeitRegExps(subject.forfeits);
-      var matchedForfeits = [];
+      var matchedForfeits;
+      var pendingPromise;
       for (var i=0; i < replies.length; i++){
+        matchedForfeits = [];
         for (var j=0; j < forfeitRegExps.length; j++) {
           // if this post matches the forfeit
           if (forfeitRegExps[j].test(replies[i].body) &&
@@ -58,35 +59,32 @@ module.exports = function botctor(cfg) {
             // TODO: if forfeit was submitted by the user who posted this,
             //       withdraw the forfeit
             matchedForfeits[0] = subject.forfeits[j].id;
-            reddit('/api/comment').post({
-              parent: replies[i].name, //or is it `thing_id`? DOCSSSSSS
-              text: klaxonPostBody(subject.forfeits[j],
-                // use self-forfeit template if elf who proposed the forfeit
-                // is the poster who triggered it
-                subject.forfeits[j].elf == replies[i].author)
-            }).then(function(comment){
-              return r.table('klaxons').insert({
-                id: comment.id,
-                subject: subject.name,
-                reply: replies[i].name,
-                forfeits: [matchedForfeits],
-                created: reqlRedditDate(comment,'created')}).run(conn);
-            // TODO: continue *after* async call rather than spawning
-            //       a potential whole bunch of comment calls at once
-            });
+            var postPromise = postKlaxonReply(
+              subject,replies[i],matchedForfeits,reddit,conn);
+            if (pendingPromise) {
+              // I'm not actually sure that I have to do the assignment here -
+              // best not to risk it.
+              pendingPromise = pendingPromise.then(postPromise);
+            } else {
+              pendingPromise = postPromise;
+            }
           }
         }
       }
+      if (pendingPromise) {
+        return pendingPromise.then(pollMostUrgentSubject);
+      } else return pollMostUrgentSubject();
     }
     queries.mostUrgentSubject.run(conn).then(function(mostUrgent){
-      subject = mostUrgent;
-      return r.table('subjects').get(subject.name)
-        .update({last_checked: r.now()})
-        .run(conn).then(function(){return getSubjectReplies(reddit,subject)});
-    }).then(function(result){
-      if (result) return checkReplies(result);
+      if (mostUrgent) {
+        subject = mostUrgent;
+        return r.table('subjects').get(subject.name)
+          .update({last_checked: r.now()}).run(conn)
+          .then(getSubjectReplies(reddit,subject))
+          .then(checkReplies);
+
       // if there are no comments to check, wait a second and try again
-      else return setTimeout(pollMostUrgentSubject,1000);
+      } else return setTimeout(pollMostUrgentSubject,1000);
     });
   }
 
