@@ -6,9 +6,8 @@ var forfeitRegExp = require('./lib/forfeits/forfeitRegExp.js');
 var postKlaxonReply = require('./lib/klaxons/postKlaxonReply.js');
 var endexDb = require('./lib/endexDb.js');
 
-var botName = 'QIKlaxonBot';
-
 module.exports = function botctor(cfg) {
+  var botName = cfg.reddit.username || 'QIKlaxonBot';
   var reddit = botReddit(cfg.reddit);
   var conn;
 

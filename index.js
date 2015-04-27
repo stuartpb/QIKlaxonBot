@@ -13,7 +13,7 @@ var reqlRedditDate = require('./lib/reqlRedditDate.js');
 module.exports = function appctor(cfg) {
   var redditCfg = cfg.reddit;
   redditCfg.domain = cfg.env.CANONICAL_HOST;
-  redditCfg.botName = 'QIKlaxonBot';
+  redditCfg.botName = cfg.reddit.username || 'QIKlaxonBot';
 
   var conn;
   // so we can pass a reference to the connection to middleware
