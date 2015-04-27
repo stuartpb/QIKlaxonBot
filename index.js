@@ -16,9 +16,12 @@ module.exports = function appctor(cfg) {
   redditCfg.botName = 'QIKlaxonBot';
 
   var conn;
+  // so we can pass a reference to the connection to middleware
+  var env = {};
 
   r.connect(cfg.rethinkdb).then(function (connection) {
     conn = connection;
+    env.conn = conn;
     return endexDb(conn);
   });
 
@@ -32,9 +35,9 @@ module.exports = function appctor(cfg) {
   // handlers" than "middleware", but I'm saying that anything that
   // uses the (req, res) signature is "middleware", for the purposes of
   // naming.
-  var authBot = require('./lib/middleware/authBot.js')(redditCfg, conn);
+  var authBot = require('./lib/middleware/authBot.js')(redditCfg, env);
   var authRedditUser = require(
-    './lib/middleware/authRedditUser.js')(redditCfg, conn);
+    './lib/middleware/authRedditUser.js')(redditCfg, env);
 
   function requireLogin(req, res, next) {
     if (req.session.username) return next();
