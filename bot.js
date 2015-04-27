@@ -2,7 +2,7 @@ var botReddit = require('./lib/reddit/contexts/bot.js');
 var r = require('rethinkdb');
 var queries = require('./lib/bot/queries.js');
 var getSubjectReplies = require('./lib/reddit/getSubjectReplies.js');
-var mapForfeitRegExps = require('./lib/klaxons/mapForfeitRegExps.js');
+var forfeitRegExp = require('./lib/forfeit/forfeitRegExp.js');
 var postKlaxonReply = require('./lib/klaxons/postKlaxonReply.js');
 var endexDb = require('./lib/endexDb.js');
 
@@ -45,7 +45,7 @@ module.exports = function botctor(cfg) {
     var subject;
     function checkReplies(response) {
       var replies = response.replies;
-      var forfeitRegExps = mapForfeitRegExps(subject.forfeits);
+      var forfeitRegExps = subject.forfeits.map(forfeitRegExp);
       var matchedForfeits;
       var pendingPromise;
       for (var i=0; i < replies.length; i++){
