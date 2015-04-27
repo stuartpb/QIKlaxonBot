@@ -7,7 +7,7 @@ var endexDb = require('./lib/endexDb.js');
 
 var parseCommentsUrl = require('./lib/reddit/parseCommentsUrl.js');
 var getSubjectReplies = require('./lib/reddit/getSubjectReplies.js');
-var forfeitAlreadyPresent = require('./lib/forfeitAlreadyPresent.js');
+var forfeitAlreadyPresent = require('./lib/forfeits/forfeitAlreadyPresent.js');
 var reqlRedditDate = require('./lib/reqlRedditDate.js');
 
 module.exports = function appctor(cfg) {

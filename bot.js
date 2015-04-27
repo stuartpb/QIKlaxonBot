@@ -2,7 +2,7 @@ var botReddit = require('./lib/reddit/contexts/bot.js');
 var r = require('rethinkdb');
 var queries = require('./lib/bot/queries.js');
 var getSubjectReplies = require('./lib/reddit/getSubjectReplies.js');
-var forfeitRegExp = require('./lib/forfeit/forfeitRegExp.js');
+var forfeitRegExp = require('./lib/forfeits/forfeitRegExp.js');
 var postKlaxonReply = require('./lib/klaxons/postKlaxonReply.js');
 var endexDb = require('./lib/endexDb.js');
 
