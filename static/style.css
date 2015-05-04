@@ -35,7 +35,8 @@ header h1 {
 }
 nav ul {
   display: flex;
-  justify-content: flex-end;
+  flex-flow: row-reverse;
+  justify-content: flex-start;
   margin: 0 16px;
 }
 nav ul li {
