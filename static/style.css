@@ -1,0 +1,46 @@
+header {
+  background: #111;
+  color: white;
+  height: 170px;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  flex-direction: column;
+}
+@-webkit-keyframes blink {
+  50% {
+    opacity: 1;
+  }
+  from {
+    opacity: 0;
+  }
+}
+@keyframes blink {
+  50% {
+    opacity: 1;
+  }
+  from {
+    opacity: 0;
+  }
+}
+header h1 {
+  display: block;
+  margin: 32px 0 16px;
+  text-align: center;
+  -webkit-animation: blink 1s step-end 6;
+          animation: blink 1s step-end 6;
+  font-size: 48px;
+  font-family: Helvetica, sans-serif;
+  text-transform: uppercase;
+}
+nav ul {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 16px;
+}
+nav ul li {
+  display: block;
+}
+nav ul li a {
+  color: inherit;
+}
