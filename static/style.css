@@ -45,3 +45,6 @@ nav ul li {
 nav ul li a {
   color: inherit;
 }
+main {
+  max-width: 800px;
+}
