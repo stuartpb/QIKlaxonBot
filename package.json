@@ -28,6 +28,6 @@
     "express-session": "^1.10.4",
     "jade": "^1.9.2",
     "rethinkdb": "^1.16.2",
-    "snoocore": "^2.8.0"
+    "snoocore": "^3.0.1"
   }
 }
