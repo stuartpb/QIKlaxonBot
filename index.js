@@ -52,7 +52,7 @@ module.exports = function appctor(cfg) {
       host: cfg.redis.hostname,
       port: cfg.redis.port}),
     secret: cfg.reddit.secret,
-    resave: true, //until tj/connect-redis#142 is implemented
+    resave: false,
     saveUninitialized: false
   }));
   app.use(function (req, res, next) {
